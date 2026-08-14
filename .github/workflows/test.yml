@@ -8,8 +8,8 @@ on:
   pull_request:
 
 permissions:
-  id-token: write  # Required for AWS OIDC authentication
-  contents: read   # Required to checkout repository code
+  id-token: write
+  contents: read
 
 jobs:
   test-aws-oidc:
@@ -18,6 +18,12 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Debug OIDC Token Claims
+        run: |
+          TOKEN=$(curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | jq -r '.value')
+          echo "Current sub claim is:"
+          jq -R 'split(".") | .[1] | @base64d | fromjson | .sub' <<< "$TOKEN"
 
       - name: Configure AWS Credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
