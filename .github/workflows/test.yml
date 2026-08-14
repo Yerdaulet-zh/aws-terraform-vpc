@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - KAN-1--init
   pull_request:
 
 permissions:
