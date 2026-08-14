@@ -1,4 +1,4 @@
-name: AWS VPC module
+name: AWS VPC Module
 
 on:
   push:
@@ -8,13 +8,15 @@ on:
     branches:
       - main
 
-permissions:
-  contents: read
-  id-token: write
+# Deny all permissions by default
+permissions: {}
 
 jobs:
   main:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - name: Checkout Code
