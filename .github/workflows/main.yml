@@ -1,4 +1,4 @@
-name: AWS VPC Module
+name: AWS VPC Terraform Pipeline
 
 on:
   push:
@@ -7,20 +7,80 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Select Terraform Action'
+        required: true
+        default: 'plan-apply'
+        type: choice
+        options:
+          - plan-apply
+          - destroy
 
-# Deny all permissions by default
-permissions: {}
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write
 
 jobs:
-  main:
+  # Static Checks & Security Scans
+  lint-and-scan:
+    name: Lint & Security Scan
     runs-on: ubuntu-latest
+    # Skip linting if user explicitly requested a Destroy action
+    if: github.event_name != 'workflow_dispatch' || github.event.inputs.action == 'plan-apply'
     permissions:
       contents: read
-      id-token: write
+      pull-requests: none
+      id-token: none
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Setup Terraform CLI
+        uses: hashicorp/setup-terraform@v4
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v6
+        with:
+          tflint_version: v0.52.0
+          cache: true
+
+      - name: Init TFLint
+        run: tflint --init
+
+      - name: Run TFLint
+        run: tflint -f compact --chdir=example
+
+      - name: Run tfsec
+        uses: aquasecurity/tfsec-action@v1.0.3
+        with:
+          working_directory: example
+          soft_fail: false
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+  # Integration Test & PR Reporting
+  terraform:
+    name: Terraform Plan & Apply (Example)
+    runs-on: ubuntu-latest
+    needs: lint-and-scan
+    if: github.event_name != 'workflow_dispatch' || github.event.inputs.action == 'plan-apply'
+
+    defaults:
+      run:
+        working-directory: example
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform CLI
+        uses: hashicorp/setup-terraform@v4
 
       - name: Configure AWS Credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
@@ -28,7 +88,119 @@ jobs:
           role-to-assume: ${{ secrets.VPC_IAM_ROLE_ARN }}
           aws-region: eu-central-1
 
-      - name: Verify AWS Connection
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        id: plan
         run: |
-          echo "Hello World from GitHub Actions!"
-          aws sts get-caller-identity
+          terraform plan -no-color -out=tfplan
+          terraform show -no-color tfplan > plan_output.txt
+
+      - name: Comment Plan on PR
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            let planText = '';
+            try {
+              planText = fs.readFileSync('plan_output.txt', 'utf8');
+            } catch (err) {
+              planText = 'Error reading plan_output.txt';
+            }
+
+            if (planText.length > 6000) {
+              planText = planText.substring(0, 6000) + '\n... [truncated]';
+            }
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `### Terraform Plan Output (\`example/\`)\n\`\`\`hcl\n${planText}\n\`\`\``
+            });
+
+      - name: Save Plan Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tf-plan-artifact
+          path: example/tfplan
+
+  # Manual Approval & Apply Execution
+  terraform-apply:
+    name: Terraform Apply
+    runs-on: ubuntu-latest
+    needs: terraform
+    if: github.event_name != 'workflow_dispatch' || github.event.inputs.action == 'plan-apply'
+    environment: approval-required
+    permissions:
+      contents: read
+      pull-requests: none
+      id-token: write
+
+    defaults:
+      run:
+        working-directory: example
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform CLI
+        uses: hashicorp/setup-terraform@v4
+
+      # Downloads tfplan directly into the current execution directory (example/)
+      - name: Download Plan Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: tf-plan-artifact
+
+      - name: Configure AWS Credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.VPC_IAM_ROLE_ARN }}
+          aws-region: eu-central-1
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan
+
+  # Manual On-Demand Destroy Execution
+  terraform-destroy:
+    name: Terraform Destroy (Example)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'destroy'
+    environment: approval-required
+    permissions:
+      contents: read
+      id-token: write
+
+    defaults:
+      run:
+        working-directory: example
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform CLI
+        uses: hashicorp/setup-terraform@v4
+
+      - name: Configure AWS Credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.VPC_IAM_ROLE_ARN }}
+          aws-region: eu-central-1
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Destroy
+        run: terraform destroy -auto-approve
