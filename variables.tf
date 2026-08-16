@@ -18,4 +18,9 @@ variable "vpc_config" {
       ManagedBy = "Terraform"
     })
   })
+
+  validation {
+    condition     = var.vpc_config.ipv4_ipam_id != null || var.vpc_config.ipv4_cidr_block != null
+    error_message = "You must provide either 'ipv4_cidr_block' or 'ipv4_ipam_id' in vpc_config."
+  }
 }
