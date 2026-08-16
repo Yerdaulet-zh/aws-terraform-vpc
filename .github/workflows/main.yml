@@ -86,10 +86,20 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.VPC_IAM_ROLE_ARN }}
-          aws-region: eu-central-1
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Create Backend Config
+        run: |
+          cat <<EOF > config.s3.tfbackend
+          bucket       = "${{ vars.BACKEND_S3_BUCKET }}"
+          key          = "${{ vars.S3_BUCKET_KEY }}"
+          region       = locals.region
+          encrypt      = true
+          use_lockfile = true
+          EOF
 
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -backend-config=config.s3.tfbackend
 
       - name: Terraform Validate
         run: terraform validate
@@ -164,10 +174,20 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.VPC_IAM_ROLE_ARN }}
-          aws-region: eu-central-1
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Create Backend Config
+        run: |
+          cat <<EOF > config.s3.tfbackend
+          bucket       = "${{ vars.BACKEND_S3_BUCKET }}"
+          key          = "${{ vars.S3_BUCKET_KEY }}"
+          region       = locals.region
+          encrypt      = true
+          use_lockfile = true
+          EOF
 
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -backend-config=config.s3.tfbackend
 
       - name: Terraform Apply
         run: terraform apply -auto-approve tfplan
@@ -197,10 +217,20 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.VPC_IAM_ROLE_ARN }}
-          aws-region: eu-central-1
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Create Backend Config
+        run: |
+          cat <<EOF > config.s3.tfbackend
+          bucket       = "${{ vars.BACKEND_S3_BUCKET }}"
+          key          = "${{ vars.S3_BUCKET_KEY }}"
+          region       = locals.region
+          encrypt      = true
+          use_lockfile = true
+          EOF
 
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -backend-config=config.s3.tfbackend
 
       - name: Terraform Destroy
         run: terraform destroy -auto-approve
