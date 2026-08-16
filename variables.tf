@@ -14,8 +14,10 @@ variable "vpc_config" {
     enable_network_address_usage_metrics = optional(bool, true)
     enable_dns_hostnames                 = optional(bool, true)
     tags = optional(map(string), {
-      Owner     = "Terraform"
-      ManagedBy = "Terraform"
+      Name        = "${var.global.project_name}-${var.global.environment}"
+      Environment = "${var.global.environment}"
+      Owner       = "Terraform"
+      ManagedBy   = "Terraform"
     })
   })
 
@@ -23,4 +25,12 @@ variable "vpc_config" {
     condition     = var.vpc_config.ipv4_ipam_id != null || var.vpc_config.ipv4_cidr_block != null
     error_message = "You must provide either 'ipv4_cidr_block' or 'ipv4_ipam_id' in vpc_config."
   }
+}
+
+variable "global" {
+  description = "Global variables for the project"
+  type = object({
+    project_name = string
+    environment  = string
+  })
 }
