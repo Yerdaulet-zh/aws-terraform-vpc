@@ -1,3 +1,3 @@
 provider "aws" {
-  region = locals.region
+  region = local.region
 }
