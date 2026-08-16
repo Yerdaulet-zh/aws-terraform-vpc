@@ -63,6 +63,7 @@ jobs:
           working_directory: example
           soft_fail: false
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          additional_args: --config-file ../.tfsec/config.yml
 
   # Integration Test & PR Reporting
   terraform:
