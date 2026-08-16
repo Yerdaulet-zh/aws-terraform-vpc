@@ -13,12 +13,7 @@ variable "vpc_config" {
     enable_dns_support                   = optional(bool, true)
     enable_network_address_usage_metrics = optional(bool, true)
     enable_dns_hostnames                 = optional(bool, true)
-    tags = optional(map(string), {
-      Name        = "${var.global.project_name}-${var.global.environment}"
-      Environment = "${var.global.environment}"
-      Owner       = "Terraform"
-      ManagedBy   = "Terraform"
-    })
+    tags                                 = optional(map(string), {})
   })
 
   validation {
