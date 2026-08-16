@@ -94,7 +94,7 @@ jobs:
           cat <<EOF > config.s3.tfbackend
           bucket       = "${{ vars.BACKEND_S3_BUCKET }}"
           key          = "${{ vars.S3_BUCKET_KEY }}"
-          region       = locals.region
+          region       = "${{ vars.AWS_REGION }}"
           encrypt      = true
           use_lockfile = true
           EOF
@@ -182,7 +182,7 @@ jobs:
           cat <<EOF > config.s3.tfbackend
           bucket       = "${{ vars.BACKEND_S3_BUCKET }}"
           key          = "${{ vars.S3_BUCKET_KEY }}"
-          region       = locals.region
+          region       = "${{ vars.AWS_REGION }}"
           encrypt      = true
           use_lockfile = true
           EOF
@@ -225,7 +225,7 @@ jobs:
           cat <<EOF > config.s3.tfbackend
           bucket       = "${{ vars.BACKEND_S3_BUCKET }}"
           key          = "${{ vars.S3_BUCKET_KEY }}"
-          region       = locals.region
+          region       = "${{ vars.AWS_REGION }}"
           encrypt      = true
           use_lockfile = true
           EOF
