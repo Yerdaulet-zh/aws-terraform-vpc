@@ -15,5 +15,5 @@ resource "aws_vpc" "this" {
   enable_network_address_usage_metrics = var.vpc_config.enable_network_address_usage_metrics
   enable_dns_hostnames                 = var.vpc_config.enable_dns_hostnames
 
-  tags = merge(locals.default_tags, var.vpc_config.tags)
+  tags = merge(local.default_tags, var.vpc_config.tags)
 }
