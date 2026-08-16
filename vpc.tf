@@ -1,4 +1,4 @@
-resource "aws_vpc" "main" {
+resource "aws_vpc" "this" {
   # IPv4 Configuration
   cidr_block          = var.vpc_config.ipv4_ipam_id == null ? var.vpc_config.ipv4_cidr_block : null
   ipv4_ipam_pool_id   = var.vpc_config.ipv4_ipam_id
