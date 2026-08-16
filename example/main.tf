@@ -2,7 +2,7 @@ module "vpc_test" {
   source = "../"
 
   vpc_config = {
-    ipam_ipv4_id                         = null
+    ipv4_ipam_id                         = null
     ipv4_netmask_length                  = null
     ipv4_cidr_block                      = "10.100.0.0/16"
     assign_generated_ipv6_cidr_block     = true
