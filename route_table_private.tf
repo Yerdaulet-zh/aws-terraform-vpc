@@ -1,5 +1,5 @@
 resource "aws_route_table" "private" {
-  count  = length(local.private_subnets) > 0 ? 1 : 0
+  count  = length(local.private_ipv6_subnets) > 0 ? 1 : 0
   vpc_id = aws_vpc.this.id
 
   tags = merge(local.default_tags, { Name = "${var.global.project_name}-private-rt" })
@@ -14,7 +14,7 @@ resource "aws_route" "private_eoigw" {
 }
 
 resource "aws_route_table_association" "private" {
-  for_each       = local.private_subnets
+  for_each       = local.private_ipv6_subnets
   subnet_id      = each.value.id
   route_table_id = aws_route_table.private[0].id
 }
