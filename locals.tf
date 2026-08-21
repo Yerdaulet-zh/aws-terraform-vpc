@@ -20,7 +20,7 @@ locals {
   # Split Private Subnets by IPv6 Capability such as IPv6 Native or IPv6 Enabled (Dual-Stack) Subnets
   private_ipv6_subnets = {
     for k, v in local.all_private_subnets : k => v
-    if v.ipv6_cidr_block != null
+    if try(v.ipv6_cidr_block, null) != null
   }
 
   private_ipv4_only_subnets = {
