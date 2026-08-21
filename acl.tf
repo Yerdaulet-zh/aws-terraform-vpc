@@ -1,6 +1,6 @@
 resource "aws_default_network_acl" "default" {
   count                  = length(keys(var.acl)) > 0 ? 1 : 0
-  default_network_acl_id = aws_vpc.this[0].default_network_acl_id
+  default_network_acl_id = aws_vpc.this.default_network_acl_id
 
   lifecycle {
     ignore_changes = [subnet_ids]
