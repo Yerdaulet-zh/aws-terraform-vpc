@@ -14,7 +14,6 @@ module "vpc_test" {
       Name = "Dual-Stack Example VPC"
     }
   }
-
   acl = {
     tags = {
       Name        = "Default ACL of Example VPC"
@@ -44,22 +43,22 @@ module "vpc_test" {
 
       // IPv6 rules
       "allow_all_ingress_ipv6" = {
-        rule_number = 101
-        egress      = false
-        protocol    = "-1"
-        cidr_block  = "::/0"
-        rule_action = "allow"
-        from_port   = 0
-        to_port     = 0
+        rule_number     = 101
+        egress          = false
+        protocol        = "-1"
+        ipv6_cidr_block = "::/0"
+        rule_action     = "allow"
+        from_port       = 0
+        to_port         = 0
       }
       "allow_all_egress_ipv6" = {
-        rule_number = 101
-        egress      = true
-        protocol    = "-1"
-        cidr_block  = "::/0"
-        rule_action = "allow"
-        from_port   = 0
-        to_port     = 0
+        rule_number     = 101
+        egress          = true
+        protocol        = "-1"
+        ipv6_cidr_block = "::/0"
+        rule_action     = "allow"
+        from_port       = 0
+        to_port         = 0
       }
     }
   }

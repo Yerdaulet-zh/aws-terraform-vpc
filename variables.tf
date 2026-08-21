@@ -54,13 +54,14 @@ variable "acl" {
   type = object({
     tags = optional(map(string), {})
     rules = optional(map(object({
-      rule_number = number
-      egress      = bool
-      protocol    = string
-      cidr_block  = string
-      rule_action = string
-      from_port   = optional(number, 0)
-      to_port     = optional(number, 65535)
+      rule_number     = number
+      egress          = bool
+      protocol        = string
+      cidr_block      = optional(string)
+      ipv6_cidr_block = optional(string)
+      rule_action     = string
+      from_port       = optional(number, 0)
+      to_port         = optional(number, 65535)
     })))
   })
 
