@@ -15,7 +15,54 @@ module "vpc_test" {
     }
   }
 
-  acl = {}
+  acl = {
+    tags = {
+      Name        = "Default ACL of Example VPC"
+      Environment = "production"
+      ManagedBy   = "terraform"
+    }
+    rules = {
+      // IPv4 Rules
+      "allow_all_ingress_ipv4" = {
+        rule_number = 100
+        egress      = false
+        protocol    = "-1"
+        cidr_block  = "0.0.0.0/0"
+        rule_action = "allow"
+        from_port   = 0
+        to_port     = 0
+      }
+      "allow_all_egress_ipv4" = {
+        rule_number = 100
+        egress      = true
+        protocol    = "-1"
+        cidr_block  = "0.0.0.0/0"
+        rule_action = "allow"
+        from_port   = 0
+        to_port     = 0
+      }
+
+      // IPv6 rules
+      "allow_all_ingress_ipv6" = {
+        rule_number = 101
+        egress      = false
+        protocol    = "-1"
+        cidr_block  = "0.0.0.0/0"
+        rule_action = "allow"
+        from_port   = 0
+        to_port     = 0
+      }
+      "allow_all_egress_ipv6" = {
+        rule_number = 101
+        egress      = true
+        protocol    = "-1"
+        cidr_block  = "0.0.0.0/0"
+        rule_action = "allow"
+        from_port   = 0
+        to_port     = 0
+      }
+    }
+  }
 
   subnets = {
     "public-a" = {
