@@ -50,16 +50,19 @@ variable "vpc_config" {
 
 variable "acl" {
   description = "Configuration for the default network ACL"
-  type = map(object({
-    rule_number = number
-    egress      = bool
-    protocol    = string
-    cidr_block  = string
-    rule_action = string
-    from_port   = optional(number, 0)
-    to_port     = optional(number, 65535)
-    tags        = optional(map(string), {})
-  }))
+
+  type = object({
+    tags = optional(map(string), {})
+    rules = map(object({
+      rule_number = number
+      egress      = bool
+      protocol    = string
+      cidr_block  = string
+      rule_action = string
+      from_port   = optional(number, 0)
+      to_port     = optional(number, 65535)
+    }))
+  })
 }
 
 variable "subnets" {

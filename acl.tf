@@ -1,5 +1,6 @@
 resource "aws_default_network_acl" "default" {
-  count                  = length(keys(var.acl)) > 0 ? 1 : 0
+  count = length(var.acl.rules) > 0 ? 1 : 0
+
   default_network_acl_id = aws_vpc.this.default_network_acl_id
 
   lifecycle {
@@ -7,7 +8,11 @@ resource "aws_default_network_acl" "default" {
   }
 
   dynamic "ingress" {
-    for_each = { for k, v in var.acl : k => v if !v.egress }
+    for_each = {
+      for k, v in var.acl.rules : k => v
+      if !v.egress
+    }
+
     content {
       rule_no    = ingress.value.rule_number
       action     = ingress.value.rule_action
@@ -19,7 +24,11 @@ resource "aws_default_network_acl" "default" {
   }
 
   dynamic "egress" {
-    for_each = { for k, v in var.acl : k => v if v.egress }
+    for_each = {
+      for k, v in var.acl.rules : k => v
+      if v.egress
+    }
+
     content {
       rule_no    = egress.value.rule_number
       action     = egress.value.rule_action
