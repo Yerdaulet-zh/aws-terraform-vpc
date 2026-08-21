@@ -53,7 +53,7 @@ variable "acl" {
 
   type = object({
     tags = optional(map(string), {})
-    rules = map(object({
+    rules = optional(map(object({
       rule_number = number
       egress      = bool
       protocol    = string
@@ -61,7 +61,7 @@ variable "acl" {
       rule_action = string
       from_port   = optional(number, 0)
       to_port     = optional(number, 65535)
-    }))
+    })))
   })
 }
 
