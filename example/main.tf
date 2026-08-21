@@ -15,6 +15,8 @@ module "vpc_test" {
     }
   }
 
+  acl = {}
+
   subnets = {
     "public-a" = {
       availability_zone = "a"
