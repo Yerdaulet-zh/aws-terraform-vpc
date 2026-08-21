@@ -63,6 +63,8 @@ variable "acl" {
       to_port     = optional(number, 65535)
     })))
   })
+
+  default = {}
 }
 
 variable "subnets" {
