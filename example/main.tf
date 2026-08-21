@@ -47,7 +47,7 @@ module "vpc_test" {
         rule_number = 101
         egress      = false
         protocol    = "-1"
-        cidr_block  = "0.0.0.0/0"
+        cidr_block  = "::/0"
         rule_action = "allow"
         from_port   = 0
         to_port     = 0
@@ -56,7 +56,7 @@ module "vpc_test" {
         rule_number = 101
         egress      = true
         protocol    = "-1"
-        cidr_block  = "0.0.0.0/0"
+        cidr_block  = "::/0"
         rule_action = "allow"
         from_port   = 0
         to_port     = 0
